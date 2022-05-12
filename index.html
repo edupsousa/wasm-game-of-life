@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    #game>div {
+      border: 1px solid #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="game">
+
+  </div>
+
+  <script type="module">
+    const cols = 50;
+    const rows = 50;
+    const cells = cols * rows;
+
+    async function instantiate() {
+      let importObject = {
+        game: {
+          memory: new WebAssembly.Memory({ initial: 1, maximum: 10 }),
+          cols: new WebAssembly.Global({ value: "i32", mutable: false }, cols),
+          rows: new WebAssembly.Global({ value: "i32", mutable: false }, rows),
+        }
+      }
+      const { instance } = await WebAssembly.instantiateStreaming(fetch('life.wasm'), importObject);
+      return { instance, dataView: new DataView(importObject.game.memory.buffer) };
+    }
+
+    function randomizeGame(data) {
+      for (let i = 0; i < cols * rows; i++) {
+        data.setUint8(i, Math.floor(Math.random() * 2));
+      }
+    }
+
+    function drawBoard() {
+      let contents = '';
+      for (let i = 0; i < cells; i++) {
+        contents += `<div id="cell_${i}"></div>`
+      }
+      const game = document.getElementById('game');
+      game.style = `width: 100vh; height: 100vh; display: grid; grid-template-columns: repeat(${cols}, 1fr); grid-template-rows: repeat(${rows}, 1fr);`
+      game.innerHTML = contents;
+    }
+
+    function renderGame(dataView) {
+      for (let i = 0; i < cells; i++) {
+        const cell = document.getElementById(`cell_${i}`);
+        if (dataView.getUint8(i) !== 0) {
+          cell.style = 'background-color: #000000;';
+        } else {
+          cell.style = 'background-color: #ffffff;';
+        }
+      }
+    }
+
+    drawBoard();
+    const { instance, dataView } = await instantiate();
+    randomizeGame(dataView);
+
+    setInterval(() => {
+      instance.exports.tick();
+      renderGame(dataView);
+    }, 100);
+  </script>
+</body>
+
+</html>
