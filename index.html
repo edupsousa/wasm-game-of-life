@@ -32,7 +32,7 @@
   <script type="module">
     const divGame = document.getElementById('game');
     const { clientWidth, clientHeight } = divGame;
-    const rows = 100;
+    const rows = 50;
     const cols = Math.trunc((clientWidth * rows) / clientHeight);
     const cells = cols * rows;
 
@@ -54,6 +54,11 @@
       }
     }
 
+    let colors = Array.from({ length: cols }, (_, i) => {
+      const hue = Math.round((i / (cols - 1)) * 360);
+      return `hsl(${hue}, 100%, 60%)`;
+    });
+
     function drawBoard() {
       let contents = '';
       for (let i = 0; i < cells; i++) {
@@ -63,17 +68,20 @@
       divGame.innerHTML = contents;
     }
 
+    let colorOffset = 0;
     function renderGame(dataView) {
       for (let i = 0; i < cells; i++) {
         const x = i % cols;
-        const hue = x / cols * 255;
+        const colorIndex = (x + colorOffset) % colors.length;
         const cell = document.getElementById(`cell_${i}`);
         if (dataView.getUint8(i) !== 0) {
-          cell.style = `background-color: hsl(${hue}, 100%, 50%);`;
+          cell.style = `background-color: ${colors[colorIndex]};`;
         } else {
-          cell.style = 'background-color: #fff;';
+          cell.style = 'background-color: #000;';
         }
       }
+      colorOffset++;
+      if (colorOffset >= colors.length) colorOffset = 0;
     }
 
     drawBoard();
