@@ -20,10 +20,6 @@
       height: 100vh;
       display: grid;
     }
-
-    #game>div {
-      border: 1px solid #aaa;
-    }
   </style>
 </head>
 
@@ -69,11 +65,13 @@
 
     function renderGame(dataView) {
       for (let i = 0; i < cells; i++) {
+        const x = i % cols;
+        const hue = x / cols * 255;
         const cell = document.getElementById(`cell_${i}`);
         if (dataView.getUint8(i) !== 0) {
-          cell.style = 'background-color: #000000;';
+          cell.style = `background-color: hsl(${hue}, 100%, 50%);`;
         } else {
-          cell.style = 'background-color: #ffffff;';
+          cell.style = 'background-color: #fff;';
         }
       }
     }
