@@ -15,6 +15,12 @@
       padding: 0;
     }
 
+    #game {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+    }
+
     #game>div {
       border: 1px solid #aaa;
     }
@@ -28,8 +34,10 @@
   </div>
 
   <script type="module">
-    const cols = 50;
-    const rows = 50;
+    const divGame = document.getElementById('game');
+    const { clientWidth, clientHeight } = divGame;
+    const rows = 100;
+    const cols = Math.trunc((clientWidth * rows) / clientHeight);
     const cells = cols * rows;
 
     async function instantiate() {
@@ -55,9 +63,8 @@
       for (let i = 0; i < cells; i++) {
         contents += `<div id="cell_${i}"></div>`
       }
-      const game = document.getElementById('game');
-      game.style = `width: 100vh; height: 100vh; display: grid; grid-template-columns: repeat(${cols}, 1fr); grid-template-rows: repeat(${rows}, 1fr);`
-      game.innerHTML = contents;
+      divGame.style = `grid-template-columns: repeat(${cols}, 1fr); grid-template-rows: repeat(${rows}, 1fr);`
+      divGame.innerHTML = contents;
     }
 
     function renderGame(dataView) {
